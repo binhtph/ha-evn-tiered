@@ -1,0 +1,66 @@
+set_period_energy:
+  target:
+    entity:
+      integration: evn_tiered
+      domain: sensor
+  fields:
+    energy:
+      required: true
+      example: 152.5
+      selector:
+        number:
+          min: 0
+          step: any
+          mode: box
+          unit_of_measurement: kWh
+reset_period:
+  target:
+    entity:
+      integration: evn_tiered
+      domain: sensor
+import_legacy_csv:
+  target:
+    entity:
+      integration: evn_tiered
+      domain: sensor
+  fields:
+    folder:
+      example: /config/energy_monitor/history
+      default: /config/energy_monitor/history
+      selector:
+        text:
+    today_entity:
+      example: sensor.dien_ngay
+      selector:
+        entity:
+          domain: sensor
+export_csv:
+  target:
+    entity:
+      integration: evn_tiered
+      domain: sensor
+  fields:
+    year:
+      example: 2026
+      selector:
+        number:
+          min: 2020
+          max: 2100
+          mode: box
+    telegram:
+      default: false
+      selector:
+        boolean:
+send_report:
+  target:
+    entity:
+      integration: evn_tiered
+      domain: sensor
+  fields:
+    kind:
+      required: true
+      default: daily
+      selector:
+        select:
+          translation_key: report_kind
+          options: [daily, period, year]

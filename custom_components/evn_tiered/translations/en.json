@@ -1,0 +1,254 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "EVN tiered cost",
+        "data": {
+          "name": "Name",
+          "energy_sensors": "Energy sensors (kWh)",
+          "billing_day": "Billing period start day"
+        },
+        "data_description": {
+          "energy_sensors": "Cumulative energy sensors; multiple are summed.",
+          "billing_day": "1 = calendar month; or the meter reading day (1-28)."
+        }
+      }
+    },
+    "error": {
+      "no_sources": "Select at least one sensor.",
+      "no_tiers": "At least one tier needs a price.",
+      "tier_gap": "Tiers must be consecutive from tier 1.",
+      "tier_limit_missing": "Every tier except the last needs a limit.",
+      "tier_limit_order": "Limits must increase.",
+      "tier_price_invalid": "Invalid price.",
+      "template_invalid": "Invalid Jinja template."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Configure",
+        "menu_options": {
+          "source": "Sources and billing day",
+          "prices": "Prices and VAT",
+          "notify": "Notifications",
+          "messages": "Message templates",
+          "save": "Save and close"
+        }
+      },
+      "source": {
+        "title": "Sources and billing day",
+        "data": {
+          "energy_sensors": "Energy sensors (kWh)",
+          "billing_day": "Billing period start day"
+        },
+        "data_description": {
+          "energy_sensors": "Cumulative energy sensors; multiple are summed.",
+          "billing_day": "1 = calendar month; or the meter reading day (1-28)."
+        }
+      },
+      "prices": {
+        "title": "Prices and VAT",
+        "data": {
+          "vat_percent": "VAT",
+          "tier_1_limit": "Tier 1: up to kWh",
+          "tier_1_price": "Tier 1: price (excl. VAT)",
+          "tier_2_limit": "Tier 2: up to kWh",
+          "tier_2_price": "Tier 2: price (excl. VAT)",
+          "tier_3_limit": "Tier 3: up to kWh",
+          "tier_3_price": "Tier 3: price (excl. VAT)",
+          "tier_4_limit": "Tier 4: up to kWh",
+          "tier_4_price": "Tier 4: price (excl. VAT)",
+          "tier_5_limit": "Tier 5: up to kWh",
+          "tier_5_price": "Tier 5: price (excl. VAT)",
+          "tier_6_limit": "Tier 6: up to kWh",
+          "tier_6_price": "Tier 6: price (excl. VAT)"
+        },
+        "data_description": {
+          "tier_1_limit": "Cumulative limit since period start. Leave the last tier's limit blank. Clear a price to drop a tier."
+        }
+      },
+      "notify": {
+        "title": "Notifications",
+        "data": {
+          "telegram_targets": "Telegram (bot notify entities)",
+          "mobile_targets": "Mobile apps (notify.mobile_app_*)",
+          "report_time": "Report time",
+          "source_lost_hours": "Alert when source lost for (hours)"
+        },
+        "data_description": {
+          "telegram_targets": "Toggle each channel with the integration's switches.",
+          "report_time": "Daily summary; period summary on the first day of a period; yearly on the first period of a year."
+        }
+      },
+      "messages": {
+        "title": "Message templates",
+        "data": {
+          "tpl_daily": "Daily report",
+          "tpl_period": "Period report",
+          "tpl_year": "Year report",
+          "tpl_tier": "Tier alert",
+          "tpl_lost": "Source lost alert"
+        },
+        "data_description": {
+          "tpl_daily": "Variables: ten, vat, ky{...}, hom_qua{...}, du_tinh{...}, ky_truoc{...}, so_voi_ky_truoc, nam{...}, don_gia_txt, nguon, so_gio. Leave empty for the default template."
+        }
+      }
+    },
+    "error": {
+      "no_sources": "Select at least one sensor.",
+      "no_tiers": "At least one tier needs a price.",
+      "tier_gap": "Tiers must be consecutive from tier 1.",
+      "tier_limit_missing": "Every tier except the last needs a limit.",
+      "tier_limit_order": "Limits must increase.",
+      "tier_price_invalid": "Invalid price.",
+      "template_invalid": "Invalid Jinja template."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "today_cost": {
+        "name": "Cost today"
+      },
+      "today_energy": {
+        "name": "Energy today"
+      },
+      "yesterday_cost": {
+        "name": "Cost yesterday"
+      },
+      "yesterday_energy": {
+        "name": "Energy yesterday"
+      },
+      "period_cost": {
+        "name": "Period cost"
+      },
+      "period_energy": {
+        "name": "Period energy"
+      },
+      "projected_cost": {
+        "name": "Projected period cost"
+      },
+      "year_cost": {
+        "name": "Year cost"
+      },
+      "year_energy": {
+        "name": "Year energy"
+      },
+      "last_year_cost": {
+        "name": "Last year cost"
+      },
+      "last_year_energy": {
+        "name": "Last year energy"
+      },
+      "last_period_cost": {
+        "name": "Last period cost"
+      },
+      "last_period_energy": {
+        "name": "Last period energy"
+      },
+      "current_tier": {
+        "name": "Current tier"
+      },
+      "current_price": {
+        "name": "Current price"
+      }
+    },
+    "switch": {
+      "report_daily": {
+        "name": "Daily report"
+      },
+      "report_period": {
+        "name": "Period report"
+      },
+      "report_year": {
+        "name": "Year report"
+      },
+      "alert_tier": {
+        "name": "Tier alert"
+      },
+      "alert_lost": {
+        "name": "Source lost alert"
+      },
+      "channel_telegram": {
+        "name": "Telegram: {target}"
+      },
+      "channel_mobile": {
+        "name": "App: {target}"
+      }
+    },
+    "button": {
+      "export_csv": {
+        "name": "Export CSV (download link)"
+      },
+      "export_csv_telegram": {
+        "name": "Export CSV to Telegram"
+      },
+      "send_daily_report": {
+        "name": "Send daily report now"
+      }
+    }
+  },
+  "selector": {
+    "report_kind": {
+      "options": {
+        "daily": "Daily",
+        "period": "Period",
+        "year": "Year"
+      }
+    }
+  },
+  "services": {
+    "set_period_energy": {
+      "name": "Set period energy",
+      "description": "Correct kWh used this period.",
+      "fields": {
+        "energy": {
+          "name": "Energy",
+          "description": "kWh since period start."
+        }
+      }
+    },
+    "reset_period": {
+      "name": "Start new period",
+      "description": "Close the period and restart from 0."
+    },
+    "import_legacy_csv": {
+      "name": "Import legacy CSV",
+      "description": "Import legacy CSV; current period is recalculated.",
+      "fields": {
+        "folder": {
+          "name": "Folder",
+          "description": "Folder with legacy CSV."
+        },
+        "today_entity": {
+          "name": "Legacy today sensor",
+          "description": "e.g. sensor.dien_ngay for today's kWh before install."
+        }
+      }
+    },
+    "export_csv": {
+      "name": "Export CSV",
+      "description": "Create download links; optionally send via Telegram.",
+      "fields": {
+        "year": {
+          "name": "Year",
+          "description": "Empty = all years."
+        },
+        "telegram": {
+          "name": "Telegram",
+          "description": "Send files to enabled Telegram channels."
+        }
+      }
+    },
+    "send_report": {
+      "name": "Send report now",
+      "description": "Send a report now.",
+      "fields": {
+        "kind": {
+          "name": "Kind",
+          "description": "daily, period or year."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,254 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Tiền điện bậc thang EVN",
+        "data": {
+          "name": "Tên",
+          "energy_sensors": "Sensor điện năng (kWh)",
+          "billing_day": "Ngày bắt đầu kỳ"
+        },
+        "data_description": {
+          "energy_sensors": "Một hoặc nhiều sensor energy tăng dần (tổng kWh); nhiều sensor được cộng lại.",
+          "billing_day": "1 = tính theo tháng dương lịch. Đổi thành ngày EVN ghi chỉ số nếu cần (1–28)."
+        }
+      }
+    },
+    "error": {
+      "no_sources": "Chọn ít nhất một sensor.",
+      "no_tiers": "Cần ít nhất một bậc có đơn giá.",
+      "tier_gap": "Các bậc phải liên tiếp từ bậc 1.",
+      "tier_limit_missing": "Mọi bậc trừ bậc cuối phải có hạn mức kWh.",
+      "tier_limit_order": "Hạn mức phải tăng dần (100 < 200 < 400).",
+      "tier_price_invalid": "Đơn giá không hợp lệ.",
+      "template_invalid": "Mẫu tin sai cú pháp Jinja."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Cấu hình",
+        "menu_options": {
+          "source": "Sensor nguồn và ngày chốt kỳ",
+          "prices": "Giá điện và VAT",
+          "notify": "Thông báo (kênh, giờ gửi)",
+          "messages": "Nội dung tin nhắn",
+          "save": "Lưu và đóng"
+        }
+      },
+      "source": {
+        "title": "Sensor nguồn và ngày chốt kỳ",
+        "data": {
+          "energy_sensors": "Sensor điện năng (kWh)",
+          "billing_day": "Ngày bắt đầu kỳ"
+        },
+        "data_description": {
+          "energy_sensors": "Một hoặc nhiều sensor energy tăng dần (tổng kWh); nhiều sensor được cộng lại.",
+          "billing_day": "1 = tính theo tháng dương lịch. Đổi thành ngày EVN ghi chỉ số nếu cần (1–28)."
+        }
+      },
+      "prices": {
+        "title": "Giá điện và VAT",
+        "data": {
+          "vat_percent": "Thuế VAT",
+          "tier_1_limit": "Bậc 1: đến kWh",
+          "tier_1_price": "Bậc 1: đơn giá (chưa VAT)",
+          "tier_2_limit": "Bậc 2: đến kWh",
+          "tier_2_price": "Bậc 2: đơn giá (chưa VAT)",
+          "tier_3_limit": "Bậc 3: đến kWh",
+          "tier_3_price": "Bậc 3: đơn giá (chưa VAT)",
+          "tier_4_limit": "Bậc 4: đến kWh",
+          "tier_4_price": "Bậc 4: đơn giá (chưa VAT)",
+          "tier_5_limit": "Bậc 5: đến kWh",
+          "tier_5_price": "Bậc 5: đơn giá (chưa VAT)",
+          "tier_6_limit": "Bậc 6: đến kWh",
+          "tier_6_price": "Bậc 6: đơn giá (chưa VAT)"
+        },
+        "data_description": {
+          "tier_1_limit": "Hạn mức cộng dồn từ đầu kỳ (100, 200, 400…). Bậc cuối để trống hạn mức. Xóa đơn giá để bỏ bậc; điền thêm bậc 6 khi EVN quay lại 6 bậc."
+        }
+      },
+      "notify": {
+        "title": "Thông báo (kênh, giờ gửi)",
+        "data": {
+          "telegram_targets": "Telegram (notify entity của bot)",
+          "mobile_targets": "App điện thoại (notify.mobile_app_*)",
+          "report_time": "Giờ gửi báo cáo",
+          "source_lost_hours": "Báo mất số liệu sau (giờ)"
+        },
+        "data_description": {
+          "telegram_targets": "Bật/tắt từng kênh bằng công tắc trong thiết bị của integration.",
+          "report_time": "Mỗi ngày gửi tổng kết hôm qua; ngày đầu kỳ gửi thêm tổng kết kỳ; đầu năm gửi tổng kết năm."
+        }
+      },
+      "messages": {
+        "title": "Nội dung tin nhắn",
+        "data": {
+          "tpl_daily": "Tin tổng kết hằng ngày",
+          "tpl_period": "Tin tổng kết kỳ",
+          "tpl_year": "Tin tổng kết năm",
+          "tpl_tier": "Tin báo lên bậc",
+          "tpl_lost": "Tin báo mất số liệu"
+        },
+        "data_description": {
+          "tpl_daily": "Biến dùng được: ten, vat, ky{ten,kwh,kwh_txt,bac,tien,tien_txt,tien_chua_vat,tien_chua_vat_txt}, hom_qua{ngay,kwh,kwh_txt,bac,tien,tien_txt,...}, du_tinh{kwh_txt,tien_txt}, ky_truoc{...}, so_voi_ky_truoc, nam{nam,kwh_txt,so_ky,tien_txt,tien_chua_vat_txt,cao_nhat,thap_nhat}, don_gia_txt, nguon, so_gio. Để trống = mẫu mặc định."
+        }
+      }
+    },
+    "error": {
+      "no_sources": "Chọn ít nhất một sensor.",
+      "no_tiers": "Cần ít nhất một bậc có đơn giá.",
+      "tier_gap": "Các bậc phải liên tiếp từ bậc 1.",
+      "tier_limit_missing": "Mọi bậc trừ bậc cuối phải có hạn mức kWh.",
+      "tier_limit_order": "Hạn mức phải tăng dần (100 < 200 < 400).",
+      "tier_price_invalid": "Đơn giá không hợp lệ.",
+      "template_invalid": "Mẫu tin sai cú pháp Jinja."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "today_cost": {
+        "name": "Tiền điện hôm nay"
+      },
+      "today_energy": {
+        "name": "Điện hôm nay"
+      },
+      "yesterday_cost": {
+        "name": "Tiền điện hôm qua"
+      },
+      "yesterday_energy": {
+        "name": "Điện hôm qua"
+      },
+      "period_cost": {
+        "name": "Tiền điện kỳ này"
+      },
+      "period_energy": {
+        "name": "Điện kỳ này"
+      },
+      "projected_cost": {
+        "name": "Dự tính tiền cả kỳ"
+      },
+      "year_cost": {
+        "name": "Tiền điện năm nay"
+      },
+      "year_energy": {
+        "name": "Điện năm nay"
+      },
+      "last_year_cost": {
+        "name": "Tiền điện năm trước"
+      },
+      "last_year_energy": {
+        "name": "Điện năm trước"
+      },
+      "last_period_cost": {
+        "name": "Tiền điện kỳ trước"
+      },
+      "last_period_energy": {
+        "name": "Điện kỳ trước"
+      },
+      "current_tier": {
+        "name": "Bậc hiện tại"
+      },
+      "current_price": {
+        "name": "Đơn giá hiện tại"
+      }
+    },
+    "switch": {
+      "report_daily": {
+        "name": "Gửi tổng kết hằng ngày"
+      },
+      "report_period": {
+        "name": "Gửi tổng kết kỳ"
+      },
+      "report_year": {
+        "name": "Gửi tổng kết năm"
+      },
+      "alert_tier": {
+        "name": "Báo khi lên bậc"
+      },
+      "alert_lost": {
+        "name": "Báo mất số liệu"
+      },
+      "channel_telegram": {
+        "name": "Gửi Telegram: {target}"
+      },
+      "channel_mobile": {
+        "name": "Gửi app: {target}"
+      }
+    },
+    "button": {
+      "export_csv": {
+        "name": "Xuất CSV (link tải)"
+      },
+      "export_csv_telegram": {
+        "name": "Xuất CSV qua Telegram"
+      },
+      "send_daily_report": {
+        "name": "Gửi thử báo cáo ngày"
+      }
+    }
+  },
+  "selector": {
+    "report_kind": {
+      "options": {
+        "daily": "Hằng ngày",
+        "period": "Kỳ",
+        "year": "Năm"
+      }
+    }
+  },
+  "services": {
+    "set_period_energy": {
+      "name": "Đặt điện năng kỳ hiện tại",
+      "description": "Hiệu chỉnh số kWh đã dùng trong kỳ.",
+      "fields": {
+        "energy": {
+          "name": "Điện năng",
+          "description": "kWh từ đầu kỳ."
+        }
+      }
+    },
+    "reset_period": {
+      "name": "Bắt đầu kỳ mới",
+      "description": "Chốt kỳ hiện tại và đếm lại từ 0."
+    },
+    "import_legacy_csv": {
+      "name": "Nhập CSV Energy Monitor cũ",
+      "description": "Nhập energy_daily_*.csv và energy_monthly.csv; kỳ hiện tại được tính lại theo giá mới.",
+      "fields": {
+        "folder": {
+          "name": "Thư mục",
+          "description": "Thư mục chứa CSV cũ."
+        },
+        "today_entity": {
+          "name": "Sensor điện hôm nay (cũ)",
+          "description": "Vd sensor.dien_ngay: lấy phần điện hôm nay trước khi cài."
+        }
+      }
+    },
+    "export_csv": {
+      "name": "Xuất CSV",
+      "description": "Tạo link tải CSV (thông báo trên HA), tùy chọn gửi qua Telegram.",
+      "fields": {
+        "year": {
+          "name": "Năm",
+          "description": "Để trống = tất cả các năm."
+        },
+        "telegram": {
+          "name": "Telegram",
+          "description": "Gửi file qua các kênh Telegram đang bật."
+        }
+      }
+    },
+    "send_report": {
+      "name": "Gửi báo cáo ngay",
+      "description": "Gửi thử một loại báo cáo.",
+      "fields": {
+        "kind": {
+          "name": "Loại",
+          "description": "daily, period hoặc year."
+        }
+      }
+    }
+  }
+}
