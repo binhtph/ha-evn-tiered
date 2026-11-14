@@ -66,20 +66,38 @@ Dùng với **Energy dashboard**: trong mục Grid consumption, chọn "Use an e
 type: entities
 title: Điện nhà
 entities:
+  - type: section
+    label: Hôm nay
   - entity: sensor.dien_nha_energy_today
     name: Điện hôm nay
   - entity: sensor.dien_nha_cost_today
     name: Tiền hôm nay
+  - type: section
+    label: Hôm qua
+  - entity: sensor.dien_nha_energy_yesterday
+    name: Điện hôm qua
+  - entity: sensor.dien_nha_cost_yesterday
+    name: Tiền hôm qua
+  - type: section
+    label: Kỳ này
   - entity: sensor.dien_nha_period_energy
     name: Điện kỳ này
   - entity: sensor.dien_nha_period_cost
     name: Tiền kỳ này
   - entity: sensor.dien_nha_current_tier
-    name: Bậc
+    name: Bậc hiện tại
+  - entity: sensor.dien_nha_current_price
+    name: Đơn giá (có VAT)
   - entity: sensor.dien_nha_projected_period_cost
     name: Dự tính cả kỳ
+  - type: section
+    label: Năm
+  - entity: sensor.dien_nha_year_energy
+    name: Điện năm nay
   - entity: sensor.dien_nha_year_cost
     name: Tiền năm nay
+  - entity: sensor.dien_nha_last_year_energy
+    name: Điện năm trước
   - entity: sensor.dien_nha_last_year_cost
     name: Tiền năm trước
 ```
