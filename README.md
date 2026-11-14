@@ -1,4 +1,4 @@
-# Tiền điện bậc thang EVN cho Home Assistant (`evn_tiered`)
+# EVN Tiered Electricity Cost for Home Assistant (`evn_tiered`)
 
 Integration này tính tiền điện theo biểu giá bậc thang EVN từ bất kỳ sensor energy (kWh) nào. Mọi cài đặt đều làm trên giao diện, không cần YAML, Jinja hay shell script.
 
@@ -16,7 +16,7 @@ Integration này tính tiền điện theo biểu giá bậc thang EVN từ bấ
 
 **Thủ công:** chép thư mục `custom_components/evn_tiered` vào `/config/custom_components/` → khởi động lại Home Assistant.
 
-Sau khi khởi động lại: **Settings → Devices & services → Add integration → "Tiền điện bậc thang EVN"**. Đặt tên (ví dụ "Điện nhà"), chọn sensor energy và ngày bắt đầu kỳ.
+Sau khi khởi động lại: **Settings → Devices & services → Add integration → "EVN Tiered Electricity Cost"**. Đặt tên (ví dụ "Điện nhà"), chọn sensor energy và ngày bắt đầu kỳ.
 
 ## Cấu hình (nút Configure)
 

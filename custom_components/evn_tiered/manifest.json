@@ -1,6 +1,6 @@
 {
   "domain": "evn_tiered",
-  "name": "Tiền điện bậc thang EVN",
+  "name": "EVN Tiered Electricity Cost",
   "codeowners": ["@binhtph"],
   "config_flow": true,
   "dependencies": ["http"],

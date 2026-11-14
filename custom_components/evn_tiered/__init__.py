@@ -1,4 +1,4 @@
-"""Tiền điện bậc thang EVN: tính tiền điện theo bậc từ sensor energy bất kỳ."""
+"""EVN Tiered Electricity Cost: tính tiền điện theo bậc từ sensor energy bất kỳ."""
 
 from __future__ import annotations
 

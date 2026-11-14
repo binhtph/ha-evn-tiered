@@ -22,7 +22,7 @@ class EvnEntity(Entity):
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},
             name=entry.title,
-            manufacturer="EVN (tính cục bộ)",
-            model="Biểu giá bậc thang",
+            manufacturer="EVN (local calculation)",
+            model="Tiered tariff",
             entry_type=DeviceEntryType.SERVICE,
         )
