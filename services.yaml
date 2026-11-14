@@ -1,0 +1,18 @@
+set_period_energy:
+  target:
+    entity:
+      integration: evn_tiered
+  fields:
+    energy:
+      required: true
+      example: 152.5
+      selector:
+        number:
+          min: 0
+          step: any
+          mode: box
+          unit_of_measurement: kWh
+reset_period:
+  target:
+    entity:
+      integration: evn_tiered

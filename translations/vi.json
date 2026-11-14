@@ -1,0 +1,127 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Tiền điện bậc thang EVN",
+        "description": "Giá mặc định: biểu giá sinh hoạt 5 bậc EVN từ 01/11/2026 (chưa VAT). Sửa được bất cứ lúc nào trong Cấu hình.",
+        "data": {
+          "name": "Tên",
+          "energy_sensors": "Sensor điện năng (kWh)",
+          "billing_day": "Ngày bắt đầu kỳ hóa đơn",
+          "vat_percent": "Thuế VAT",
+          "tier_1_limit": "Bậc 1: đến kWh",
+          "tier_1_price": "Bậc 1: đơn giá",
+          "tier_2_limit": "Bậc 2: đến kWh",
+          "tier_2_price": "Bậc 2: đơn giá",
+          "tier_3_limit": "Bậc 3: đến kWh",
+          "tier_3_price": "Bậc 3: đơn giá",
+          "tier_4_limit": "Bậc 4: đến kWh",
+          "tier_4_price": "Bậc 4: đơn giá",
+          "tier_5_limit": "Bậc 5: đến kWh",
+          "tier_5_price": "Bậc 5: đơn giá",
+          "tier_6_limit": "Bậc 6: đến kWh",
+          "tier_6_price": "Bậc 6: đơn giá"
+        },
+        "data_description": {
+          "energy_sensors": "Chọn một hoặc nhiều sensor energy tăng dần (tổng kWh). Nhiều sensor sẽ được cộng lại.",
+          "billing_day": "Ngày ghi chỉ số công tơ hằng tháng (1–28). Để 1 nếu tính theo tháng dương lịch.",
+          "vat_percent": "Cộng vào tổng tiền. Giá điện bên dưới nhập CHƯA gồm VAT.",
+          "tier_1_limit": "Hạn mức cộng dồn từ đầu kỳ (vd 100, 200, 400…). Bậc cuối để trống hạn mức. Xóa đơn giá để bỏ bậc."
+        }
+      }
+    },
+    "error": {
+      "no_sources": "Chọn ít nhất một sensor.",
+      "no_tiers": "Cần ít nhất một bậc có đơn giá.",
+      "tier_gap": "Các bậc phải liên tiếp từ bậc 1 (không bỏ trống bậc ở giữa).",
+      "tier_limit_missing": "Mọi bậc trừ bậc cuối phải có hạn mức kWh.",
+      "tier_limit_order": "Hạn mức phải tăng dần (vd 100 < 200 < 400).",
+      "tier_price_invalid": "Đơn giá không hợp lệ."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Giá điện, VAT và sensor",
+        "data": {
+          "energy_sensors": "Sensor điện năng (kWh)",
+          "billing_day": "Ngày bắt đầu kỳ hóa đơn",
+          "vat_percent": "Thuế VAT",
+          "tier_1_limit": "Bậc 1: đến kWh",
+          "tier_1_price": "Bậc 1: đơn giá",
+          "tier_2_limit": "Bậc 2: đến kWh",
+          "tier_2_price": "Bậc 2: đơn giá",
+          "tier_3_limit": "Bậc 3: đến kWh",
+          "tier_3_price": "Bậc 3: đơn giá",
+          "tier_4_limit": "Bậc 4: đến kWh",
+          "tier_4_price": "Bậc 4: đơn giá",
+          "tier_5_limit": "Bậc 5: đến kWh",
+          "tier_5_price": "Bậc 5: đơn giá",
+          "tier_6_limit": "Bậc 6: đến kWh",
+          "tier_6_price": "Bậc 6: đơn giá"
+        },
+        "data_description": {
+          "energy_sensors": "Chọn một hoặc nhiều sensor energy tăng dần (tổng kWh). Nhiều sensor sẽ được cộng lại.",
+          "billing_day": "Ngày ghi chỉ số công tơ hằng tháng (1–28). Để 1 nếu tính theo tháng dương lịch.",
+          "vat_percent": "Cộng vào tổng tiền. Giá điện bên dưới nhập CHƯA gồm VAT.",
+          "tier_1_limit": "Hạn mức cộng dồn từ đầu kỳ (vd 100, 200, 400…). Bậc cuối để trống hạn mức. Xóa đơn giá để bỏ bậc."
+        }
+      }
+    },
+    "error": {
+      "no_sources": "Chọn ít nhất một sensor.",
+      "no_tiers": "Cần ít nhất một bậc có đơn giá.",
+      "tier_gap": "Các bậc phải liên tiếp từ bậc 1 (không bỏ trống bậc ở giữa).",
+      "tier_limit_missing": "Mọi bậc trừ bậc cuối phải có hạn mức kWh.",
+      "tier_limit_order": "Hạn mức phải tăng dần (vd 100 < 200 < 400).",
+      "tier_price_invalid": "Đơn giá không hợp lệ."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "period_cost": {
+        "name": "Tiền điện kỳ này"
+      },
+      "period_energy": {
+        "name": "Điện năng kỳ này"
+      },
+      "today_cost": {
+        "name": "Tiền điện hôm nay"
+      },
+      "today_energy": {
+        "name": "Điện năng hôm nay"
+      },
+      "current_tier": {
+        "name": "Bậc hiện tại"
+      },
+      "current_price": {
+        "name": "Đơn giá hiện tại"
+      },
+      "projected_cost": {
+        "name": "Dự tính tiền cả kỳ"
+      },
+      "last_period_cost": {
+        "name": "Tiền điện kỳ trước"
+      },
+      "last_period_energy": {
+        "name": "Điện năng kỳ trước"
+      }
+    }
+  },
+  "services": {
+    "set_period_energy": {
+      "name": "Đặt điện năng kỳ hiện tại",
+      "description": "Hiệu chỉnh số kWh đã dùng trong kỳ (vd. khớp với công tơ EVN).",
+      "fields": {
+        "energy": {
+          "name": "Điện năng",
+          "description": "Số kWh từ đầu kỳ đến giờ."
+        }
+      }
+    },
+    "reset_period": {
+      "name": "Bắt đầu kỳ mới",
+      "description": "Chốt kỳ hiện tại thành kỳ trước và đếm lại từ 0."
+    }
+  }
+}

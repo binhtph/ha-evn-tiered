@@ -1,0 +1,127 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "EVN tiered electricity cost",
+        "description": "Defaults: EVN 5-tier residential tariff from 2026-11-01 (excl. VAT). Editable later via Configure.",
+        "data": {
+          "name": "Name",
+          "energy_sensors": "Energy sensors (kWh)",
+          "billing_day": "Billing period start day",
+          "vat_percent": "VAT",
+          "tier_1_limit": "Tier 1: up to kWh",
+          "tier_1_price": "Tier 1: price",
+          "tier_2_limit": "Tier 2: up to kWh",
+          "tier_2_price": "Tier 2: price",
+          "tier_3_limit": "Tier 3: up to kWh",
+          "tier_3_price": "Tier 3: price",
+          "tier_4_limit": "Tier 4: up to kWh",
+          "tier_4_price": "Tier 4: price",
+          "tier_5_limit": "Tier 5: up to kWh",
+          "tier_5_price": "Tier 5: price",
+          "tier_6_limit": "Tier 6: up to kWh",
+          "tier_6_price": "Tier 6: price"
+        },
+        "data_description": {
+          "energy_sensors": "One or more cumulative energy sensors. Multiple sensors are summed.",
+          "billing_day": "Day of month the billing period starts (1-28).",
+          "vat_percent": "Added to the total. Tier prices below exclude VAT.",
+          "tier_1_limit": "Cumulative upper limit since period start (e.g. 100, 200, 400). Leave the last tier's limit blank. Clear a price to drop that tier."
+        }
+      }
+    },
+    "error": {
+      "no_sources": "Select at least one sensor.",
+      "no_tiers": "At least one tier needs a price.",
+      "tier_gap": "Tiers must be consecutive starting at tier 1.",
+      "tier_limit_missing": "Every tier except the last needs a kWh limit.",
+      "tier_limit_order": "Limits must increase (e.g. 100 < 200 < 400).",
+      "tier_price_invalid": "Invalid price."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Prices, VAT and sensors",
+        "data": {
+          "energy_sensors": "Energy sensors (kWh)",
+          "billing_day": "Billing period start day",
+          "vat_percent": "VAT",
+          "tier_1_limit": "Tier 1: up to kWh",
+          "tier_1_price": "Tier 1: price",
+          "tier_2_limit": "Tier 2: up to kWh",
+          "tier_2_price": "Tier 2: price",
+          "tier_3_limit": "Tier 3: up to kWh",
+          "tier_3_price": "Tier 3: price",
+          "tier_4_limit": "Tier 4: up to kWh",
+          "tier_4_price": "Tier 4: price",
+          "tier_5_limit": "Tier 5: up to kWh",
+          "tier_5_price": "Tier 5: price",
+          "tier_6_limit": "Tier 6: up to kWh",
+          "tier_6_price": "Tier 6: price"
+        },
+        "data_description": {
+          "energy_sensors": "One or more cumulative energy sensors. Multiple sensors are summed.",
+          "billing_day": "Day of month the billing period starts (1-28).",
+          "vat_percent": "Added to the total. Tier prices below exclude VAT.",
+          "tier_1_limit": "Cumulative upper limit since period start (e.g. 100, 200, 400). Leave the last tier's limit blank. Clear a price to drop that tier."
+        }
+      }
+    },
+    "error": {
+      "no_sources": "Select at least one sensor.",
+      "no_tiers": "At least one tier needs a price.",
+      "tier_gap": "Tiers must be consecutive starting at tier 1.",
+      "tier_limit_missing": "Every tier except the last needs a kWh limit.",
+      "tier_limit_order": "Limits must increase (e.g. 100 < 200 < 400).",
+      "tier_price_invalid": "Invalid price."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "period_cost": {
+        "name": "Period cost"
+      },
+      "period_energy": {
+        "name": "Period energy"
+      },
+      "today_cost": {
+        "name": "Cost today"
+      },
+      "today_energy": {
+        "name": "Energy today"
+      },
+      "current_tier": {
+        "name": "Current tier"
+      },
+      "current_price": {
+        "name": "Current price"
+      },
+      "projected_cost": {
+        "name": "Projected period cost"
+      },
+      "last_period_cost": {
+        "name": "Last period cost"
+      },
+      "last_period_energy": {
+        "name": "Last period energy"
+      }
+    }
+  },
+  "services": {
+    "set_period_energy": {
+      "name": "Set period energy",
+      "description": "Correct the kWh used so far this period (e.g. to match the EVN meter).",
+      "fields": {
+        "energy": {
+          "name": "Energy",
+          "description": "kWh since the start of the period."
+        }
+      }
+    },
+    "reset_period": {
+      "name": "Start new period",
+      "description": "Close the current period and start counting from 0."
+    }
+  }
+}
