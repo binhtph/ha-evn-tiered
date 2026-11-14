@@ -91,7 +91,7 @@
           "tpl_lost": "Source lost alert"
         },
         "data_description": {
-          "tpl_daily": "Variables: ten, vat, ky{...}, hom_qua{...}, du_tinh{...}, ky_truoc{...}, so_voi_ky_truoc, nam{...}, don_gia_txt, nguon, so_gio. Leave empty for the default template."
+          "tpl_daily": "Variables: ten, vat, ky(...), hom_qua(...), du_tinh(...), ky_truoc(...), so_voi_ky_truoc, nam(...), don_gia_txt, nguon, so_gio. Leave empty for the default template."
         }
       }
     },

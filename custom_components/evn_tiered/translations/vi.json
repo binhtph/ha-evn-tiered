@@ -91,7 +91,7 @@
           "tpl_lost": "Tin báo mất số liệu"
         },
         "data_description": {
-          "tpl_daily": "Biến dùng được: ten, vat, ky{ten,kwh,kwh_txt,bac,tien,tien_txt,tien_chua_vat,tien_chua_vat_txt}, hom_qua{ngay,kwh,kwh_txt,bac,tien,tien_txt,...}, du_tinh{kwh_txt,tien_txt}, ky_truoc{...}, so_voi_ky_truoc, nam{nam,kwh_txt,so_ky,tien_txt,tien_chua_vat_txt,cao_nhat,thap_nhat}, don_gia_txt, nguon, so_gio. Để trống = mẫu mặc định."
+          "tpl_daily": "Biến dùng được: ten, vat, ky(ten, kwh, kwh_txt, bac, tien, tien_txt, tien_chua_vat, tien_chua_vat_txt), hom_qua(ngay, kwh, kwh_txt, bac, tien, tien_txt, ...), du_tinh(kwh_txt, tien_txt), ky_truoc(...), so_voi_ky_truoc, nam(nam, kwh_txt, so_ky, tien_txt, tien_chua_vat_txt, cao_nhat, thap_nhat), don_gia_txt, nguon, so_gio. Để trống = mẫu mặc định."
         }
       }
     },
