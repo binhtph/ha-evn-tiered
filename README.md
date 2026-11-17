@@ -1,5 +1,13 @@
 # EVN Tiered Electricity Cost for Home Assistant (`evn_tiered`)
 
+[![HACS](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/)
+[![Release](https://img.shields.io/github/v/release/binhtph/ha-evn-tiered)](https://github.com/binhtph/ha-evn-tiered/releases)
+[![Validate](https://github.com/binhtph/ha-evn-tiered/actions/workflows/validate.yml/badge.svg)](https://github.com/binhtph/ha-evn-tiered/actions/workflows/validate.yml)
+[![Tests](https://github.com/binhtph/ha-evn-tiered/actions/workflows/tests.yml/badge.svg)](https://github.com/binhtph/ha-evn-tiered/actions/workflows/tests.yml)
+[![License](https://img.shields.io/github/license/binhtph/ha-evn-tiered)](LICENSE)
+
+[![Mở trong HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=binhtph&repository=ha-evn-tiered&category=integration)
+
 Integration này tính tiền điện theo biểu giá bậc thang EVN từ bất kỳ sensor energy (kWh) nào. Mọi cài đặt đều làm trên giao diện, không cần YAML, Jinja hay shell script.
 
 - Mặc định dùng biểu giá sinh hoạt **5 bậc từ 01/11/2026** (QĐ 2892/QĐ-BCT) và VAT 8%. Số bậc chỉnh được tới 6, giá và VAT sửa được bất cứ lúc nào.
@@ -12,7 +20,7 @@ Integration này tính tiền điện theo biểu giá bậc thang EVN từ bấ
 
 ## Cài đặt
 
-**HACS:** vào HACS → ⋮ → Custom repositories → dán link repo này, chọn loại *Integration* → Download → khởi động lại Home Assistant.
+**HACS:** bấm nút **Mở trong HACS** ở đầu trang (hoặc HACS → ⋮ → Custom repositories → dán link repo, chọn loại *Integration*) → Download → khởi động lại Home Assistant. Khi repo đã có trong kho mặc định của HACS, chỉ cần tìm tên integration trong HACS.
 
 **Thủ công:** chép thư mục `custom_components/evn_tiered` vào `/config/custom_components/` → khởi động lại Home Assistant.
 
@@ -138,3 +146,7 @@ Biểu đồ theo ngày, tháng, năm: dùng card `statistics-graph`, chọn `st
 ## Giới hạn
 
 Integration không tự chia hạn mức bậc theo số ngày khi kỳ hóa đơn lệch tháng, và không chia giá theo ngày khi EVN đổi giá giữa kỳ. Số tiền chỉ để tham khảo; số thực trả theo hóa đơn EVN.
+
+## Giấy phép
+
+MIT. Xem file [LICENSE](LICENSE).
