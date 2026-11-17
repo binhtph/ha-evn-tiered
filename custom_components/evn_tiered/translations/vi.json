@@ -218,7 +218,7 @@
       "fields": {
         "folder": {
           "name": "Thư mục",
-          "description": "Thư mục chứa CSV cũ."
+          "description": "Thư mục chứa CSV cũ. Phải nằm trong allowlist_external_dirs hoặc thư mục media."
         },
         "today_entity": {
           "name": "Sensor điện hôm nay (cũ)",
@@ -249,6 +249,14 @@
           "description": "daily, period hoặc year."
         }
       }
+    }
+  },
+  "exceptions": {
+    "folder_not_allowed": {
+      "message": "Home Assistant không được phép đọc thư mục {folder}. Thêm thư mục này vào allowlist_external_dirs trong configuration.yaml, hoặc chép các file CSV vào thư mục media (ví dụ /media/energy_monitor)."
+    },
+    "folder_not_found": {
+      "message": "Không tìm thấy thư mục {folder}."
     }
   }
 }

@@ -218,7 +218,7 @@
       "fields": {
         "folder": {
           "name": "Folder",
-          "description": "Folder with legacy CSV."
+          "description": "Folder with the legacy CSV files. Must be in allowlist_external_dirs or a media folder."
         },
         "today_entity": {
           "name": "Legacy today sensor",
@@ -249,6 +249,14 @@
           "description": "daily, period or year."
         }
       }
+    }
+  },
+  "exceptions": {
+    "folder_not_allowed": {
+      "message": "Home Assistant is not allowed to read the folder {folder}. Add it to allowlist_external_dirs in configuration.yaml, or copy the CSV files into a media folder (for example /media/energy_monitor)."
+    },
+    "folder_not_found": {
+      "message": "Folder {folder} was not found."
     }
   }
 }

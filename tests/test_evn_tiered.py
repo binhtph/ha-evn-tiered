@@ -12,6 +12,7 @@ from pytest_homeassistant_custom_component.common import async_fire_time_changed
 
 from homeassistant import config_entries
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ServiceValidationError
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.setup import async_setup_component
 
@@ -237,6 +238,7 @@ async def test_import_legacy(hass, tz, freezer, tmp_path):
     _set(hass, SRC, 1)
     _set(hass, SRC2, 1)
     await _create(hass)
+    hass.config.allowlist_external_dirs = {str(tmp_path)}
     resp = await hass.services.async_call(
         DOMAIN, "import_legacy_csv", {"folder": str(d), "today_entity": "sensor.dien_ngay"},
         target={"entity_id": "sensor.nha_period_cost"}, blocking=True, return_response=True,
@@ -252,6 +254,82 @@ async def test_import_legacy(hass, tz, freezer, tmp_path):
     await hass.services.async_call(DOMAIN, "import_legacy_csv", {"folder": str(d)},
                                    target={"entity_id": "sensor.nha_period_cost"}, blocking=True)
     assert _f(hass, "sensor.nha_period_energy") == pytest.approx(134)
+
+
+async def _import(hass, folder):
+    return await hass.services.async_call(
+        DOMAIN, "import_legacy_csv", {"folder": folder},
+        target={"entity_id": "sensor.nha_period_cost"}, blocking=True, return_response=True,
+    )
+
+
+def _legacy_files(d, kwh=10):
+    d.mkdir(parents=True, exist_ok=True)
+    (d / "energy_monthly.csv").write_text(
+        "Thang,kWh,Bac,Chua_VAT,Co_VAT,VAT_pct,So_ngay,Bang_gia\n"
+        "10/2026,250.00,4,600000,648000,8,31,\n", encoding="utf-8")
+    (d / "energy_daily_2026.csv").write_text(
+        "Ngay,kWh,Luy_ke_thang_kWh,Tien_ngay_chua_VAT,Luy_ke_chua_VAT,Luy_ke_co_VAT,Bac,VAT_pct,Ghi_chu\n"
+        f"01/11/2026,{kwh}.00,{kwh}.00,20000,20000,21600,1,8,\n", encoding="utf-8")
+
+
+async def test_import_legacy_folder_must_be_allowed(hass, tz, freezer, tmp_path):
+    """Dịch vụ không đọc thư mục ngoài allowlist_external_dirs / media."""
+    freezer.move_to("2026-11-14 10:00:00+07:00")
+    allowed = tmp_path / "allowed"
+    secret = tmp_path / "secret"
+    _legacy_files(allowed / "history")
+    _legacy_files(secret, kwh=99)
+    _set(hass, SRC, 1)
+    _set(hass, SRC2, 1)
+    await _create(hass)
+    hass.config.allowlist_external_dirs = {str(allowed)}
+
+    # ngoài allowlist, đường dẫn tương đối, rỗng, hoặc vượt ra ngoài bằng ".."
+    for bad in (str(secret), "secret", "", str(allowed / ".." / "secret")):
+        with pytest.raises(ServiceValidationError) as err:
+            await _import(hass, bad)
+        assert err.value.translation_key == "folder_not_allowed"
+        assert err.value.translation_domain == DOMAIN
+    # symlink thư mục trỏ ra ngoài cũng bị chặn
+    (allowed / "link").symlink_to(secret, target_is_directory=True)
+    with pytest.raises(ServiceValidationError) as err:
+        await _import(hass, str(allowed / "link"))
+    assert err.value.translation_key == "folder_not_allowed"
+    # mặc định /config/energy_monitor/history không nằm trong allowlist
+    with pytest.raises(ServiceValidationError) as err:
+        await hass.services.async_call(
+            DOMAIN, "import_legacy_csv", {},
+            target={"entity_id": "sensor.nha_period_cost"}, blocking=True, return_response=True,
+        )
+    assert err.value.translation_key == "folder_not_allowed"
+    assert _f(hass, "sensor.nha_period_energy") == pytest.approx(0)
+    assert hass.states.get("sensor.nha_last_period_cost").state in ("unknown", "0", "0.0")
+
+    # thư mục được phép nhưng không tồn tại
+    with pytest.raises(ServiceValidationError) as err:
+        await _import(hass, str(allowed / "missing"))
+    assert err.value.translation_key == "folder_not_found"
+
+    # file symlink trỏ ra ngoài thư mục bị bỏ qua, file thật vẫn được đọc
+    (allowed / "history" / "energy_daily_2025.csv").symlink_to(secret / "energy_daily_2026.csv")
+    resp = await _import(hass, str(allowed / "history"))
+    assert resp["sensor.nha_period_cost"] == {"thang": 1, "ngay": 1}
+    assert _f(hass, "sensor.nha_period_energy") == pytest.approx(10)
+
+
+async def test_import_legacy_error_messages_translated(hass):
+    """Thông báo lỗi có trong cả hai ngôn ngữ, cùng placeholder."""
+    import json
+    from pathlib import Path as _P
+
+    base = _P(__file__).parent.parent / "custom_components" / "evn_tiered" / "translations"
+    en = json.loads((base / "en.json").read_text(encoding="utf-8"))["exceptions"]
+    vi = json.loads((base / "vi.json").read_text(encoding="utf-8"))["exceptions"]
+    assert set(en) == set(vi) == {"folder_not_allowed", "folder_not_found"}
+    for key in en:
+        assert "{folder}" in en[key]["message"]
+        assert "{folder}" in vi[key]["message"]
 
 
 async def test_export_csv_web(hass, tz, freezer, hass_client_no_auth):

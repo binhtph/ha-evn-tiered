@@ -18,6 +18,7 @@ from homeassistant.const import (
     UnitOfEnergy,
 )
 from homeassistant.core import Event, EventStateChangedData, HomeAssistant, State, callback
+from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers.event import (
     async_track_state_change_event,
     async_track_time_change,
@@ -335,8 +336,24 @@ class EvnTracker:
         self._changed()
 
     async def async_import_legacy(self, folder: str, today_entity: str | None) -> dict[str, int]:
-        """Nhập CSV của Energy Monitor cũ (energy_daily_YYYY.csv, energy_monthly.csv)."""
-        rows = await self.hass.async_add_executor_job(_read_legacy, Path(folder))
+        """Nhập CSV của Energy Monitor cũ (energy_daily_YYYY.csv, energy_monthly.csv).
+
+        Chỉ đọc thư mục HA cho phép (allowlist_external_dirs hoặc thư mục media).
+        """
+        if not await self.hass.async_add_executor_job(_folder_allowed, self.hass, folder):
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="folder_not_allowed",
+                translation_placeholders={"folder": folder},
+            )
+        try:
+            rows = await self.hass.async_add_executor_job(_read_legacy, Path(folder))
+        except FileNotFoundError as err:
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="folder_not_found",
+                translation_placeholders={"folder": folder},
+            ) from err
         result = {"thang": 0, "ngay": 0}
 
         known = {p["start"] for p in self.periods}
@@ -530,16 +547,34 @@ class EvnTracker:
         return sorted(ys)
 
 
+def _folder_allowed(hass: HomeAssistant, folder: str) -> bool:
+    """Thư mục là đường dẫn tuyệt đối và nằm trong vùng HA cho phép (chạy trong executor)."""
+    if not folder or not Path(folder).is_absolute():
+        return False
+    return hass.config.is_allowed_path(folder)
+
+
 def _read_legacy(folder: Path) -> dict[str, list[dict[str, str]]]:
-    """Đọc CSV cũ (chạy trong executor)."""
+    """Đọc CSV cũ (chạy trong executor). Bỏ qua file symlink trỏ ra ngoài thư mục."""
     result: dict[str, list[dict[str, str]]] = {"daily": [], "monthly": []}
     if not folder.is_dir():
         raise FileNotFoundError(f"Không thấy thư mục {folder}")
+    root = folder.resolve()
+
+    def _inside(path: Path) -> bool:
+        return path.is_file() and path.resolve().is_relative_to(root)
+
     for path in sorted(folder.glob("energy_daily_*.csv")):
+        if not _inside(path):
+            _LOGGER.warning("Bỏ qua %s: nằm ngoài thư mục %s", path, root)
+            continue
         with path.open(encoding="utf-8-sig", newline="") as f:
             result["daily"].extend(csv.DictReader(f))
     monthly = folder / "energy_monthly.csv"
-    if monthly.is_file():
-        with monthly.open(encoding="utf-8-sig", newline="") as f:
-            result["monthly"].extend(csv.DictReader(f))
+    if monthly.exists():
+        if _inside(monthly):
+            with monthly.open(encoding="utf-8-sig", newline="") as f:
+                result["monthly"].extend(csv.DictReader(f))
+        else:
+            _LOGGER.warning("Bỏ qua %s: nằm ngoài thư mục %s", monthly, root)
     return result

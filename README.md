@@ -118,24 +118,33 @@ Biểu đồ theo ngày, tháng, năm: dùng card `statistics-graph`, chọn `st
 |---|---|
 | `evn_tiered.set_period_energy` | Đặt số kWh đã dùng trong kỳ, ví dụ cho khớp với công tơ EVN |
 | `evn_tiered.reset_period` | Chốt kỳ ngay và đếm lại từ 0 |
-| `evn_tiered.import_legacy_csv` | Nhập CSV Energy Monitor cũ (mặc định đọc từ `/config/energy_monitor/history`) |
+| `evn_tiered.import_legacy_csv` | Nhập CSV Energy Monitor cũ (mặc định đọc từ `/config/energy_monitor/history`). Thư mục phải nằm trong `allowlist_external_dirs` hoặc thư mục media, xem mục bên dưới |
 | `evn_tiered.export_csv` | Tạo link tải CSV; tham số `telegram: true` để gửi file qua Telegram |
 | `evn_tiered.send_report` | Gửi ngay một loại báo cáo: `daily`, `period` hoặc `year` |
 
 ## Chuyển từ Energy Monitor cũ (`packages/energy.yaml`)
 
 1. Cài integration và cấu hình kênh gửi. Chọn cùng sensor nguồn với bộ cũ, ví dụ `sensor.smart_energy_monitor_energy`.
-2. Vào Developer tools → Actions, chạy:
+2. Cho phép HA đọc thư mục CSV cũ. Vì lý do bảo mật, dịch vụ chỉ đọc thư mục HA cho phép; mặc định chỉ có `/config/www` và thư mục media (`/media`), nên `/config/energy_monitor/history` sẽ bị từ chối. Chọn một trong hai cách:
+   - **Cách A: chép file vào thư mục media.** Chép `energy_daily_*.csv` và `energy_monthly.csv` vào `/media/energy_monitor/` (dùng add-on Samba hoặc File editor), rồi ở bước 3 dùng `folder: /media/energy_monitor`. Không cần khởi động lại HA.
+   - **Cách B: thêm thư mục vào `allowlist_external_dirs`.** Thêm vào `configuration.yaml` rồi khởi động lại HA:
+     ```yaml
+     homeassistant:
+       allowlist_external_dirs:
+         - /config/energy_monitor/history
+     ```
+   Nếu thư mục không được phép, dịch vụ báo lỗi và không đọc file nào.
+3. Vào Developer tools → Actions, chạy:
    ```yaml
    action: evn_tiered.import_legacy_csv
    target:
      entity_id: sensor.dien_nha_period_cost
    data:
-     folder: /config/energy_monitor/history
+     folder: /config/energy_monitor/history   # hoặc /media/energy_monitor nếu dùng cách A
      today_entity: sensor.dien_ngay
    ```
    Các tháng cũ giữ đúng số tiền đã chốt. Kỳ hiện tại được tính lại theo biểu giá mới. Số điện hôm nay lấy từ `sensor.dien_ngay`. Chạy lại lệnh này không bị nhân đôi số liệu.
-3. Kiểm tra số liệu. Nếu đúng thì xóa `packages/energy.yaml`, `custom_templates/evn.jinja` và `energy_monitor/`, rồi khởi động lại HA.
+4. Kiểm tra số liệu. Nếu đúng thì xóa `packages/energy.yaml`, `custom_templates/evn.jinja` và `energy_monitor/` (và `/media/energy_monitor/` nếu dùng cách A). Nếu dùng cách B, **xóa luôn dòng `allowlist_external_dirs` vừa thêm**, vì HA báo lỗi cấu hình khi thư mục trong danh sách không còn tồn tại. Sau đó khởi động lại HA.
 
 ## Lưu trữ
 
