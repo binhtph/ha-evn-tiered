@@ -26,8 +26,10 @@ from .calc import price_table, round_half_up
 from .const import (
     ATTR_ENERGY,
     CURRENCY,
+    HISTORY_KINDS,
     LEGACY_DIR,
     SERVICE_EXPORT_CSV,
+    SERVICE_GET_HISTORY,
     SERVICE_IMPORT_LEGACY,
     SERVICE_RESET_PERIOD,
     SERVICE_SEND_REPORT,
@@ -217,6 +219,16 @@ async def async_setup_entry(
         {vol.Required("kind"): vol.In(["daily", "period", "year"])},
         "async_send_report",
     )
+    platform.async_register_entity_service(
+        SERVICE_GET_HISTORY,
+        {
+            vol.Optional("kind", default="summary"): vol.In(HISTORY_KINDS),
+            vol.Optional("year"): vol.All(vol.Coerce(int), vol.Range(min=2000, max=2100)),
+            vol.Optional("month"): vol.All(vol.Coerce(int), vol.Range(min=1, max=12)),
+        },
+        "async_get_history",
+        supports_response=SupportsResponse.ONLY,
+    )
 
 
 class EvnSensor(EvnEntity, SensorEntity):
@@ -265,3 +277,7 @@ class EvnSensor(EvnEntity, SensorEntity):
 
     async def async_send_report(self, kind: str) -> None:
         await self.runtime.notifier.async_send_report(kind)
+
+    async def async_get_history(self, kind: str = "summary", year: int | None = None,
+                                month: int | None = None) -> ServiceResponse:
+        return self.tracker.history(kind, year, month)

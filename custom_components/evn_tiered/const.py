@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 DOMAIN = "evn_tiered"
+VERSION = "1.2.0"
 
 # --- nguồn & kỳ
 CONF_SOURCES = "energy_sensors"
@@ -91,6 +92,8 @@ SERVICE_RESET_PERIOD = "reset_period"
 SERVICE_IMPORT_LEGACY = "import_legacy_csv"
 SERVICE_EXPORT_CSV = "export_csv"
 SERVICE_SEND_REPORT = "send_report"
+SERVICE_GET_HISTORY = "get_history"
+HISTORY_KINDS = ("summary", "days", "periods")
 ATTR_ENERGY = "energy"
 
 EVENT_TIER_CHANGED = f"{DOMAIN}_tier_changed"

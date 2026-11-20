@@ -6,7 +6,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.entity import Entity
 
-from .const import DOMAIN
+from .const import DOMAIN, VERSION
 
 
 class EvnEntity(Entity):
@@ -24,5 +24,6 @@ class EvnEntity(Entity):
             name=entry.title,
             manufacturer="EVN (local calculation)",
             model="Tiered tariff",
+            sw_version=VERSION,
             entry_type=DeviceEntryType.SERVICE,
         )

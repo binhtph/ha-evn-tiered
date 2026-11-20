@@ -357,3 +357,112 @@ async def test_export_csv_web(hass, tz, freezer, hass_client_no_auth):
     # nút bấm tạo thông báo
     btn = next(s.entity_id for s in hass.states.async_all("button") if "link" in s.entity_id or "csv" in s.entity_id)
     await hass.services.async_call("button", "press", {"entity_id": btn}, blocking=True)
+
+
+# ---------------------------------------------------------- get_history (v1.2)
+async def _history(hass, **data):
+    resp = await hass.services.async_call(
+        DOMAIN, "get_history", data, target={"entity_id": "sensor.nha_period_cost"},
+        blocking=True, return_response=True,
+    )
+    return resp["sensor.nha_period_cost"]
+
+
+async def test_get_history(hass, tz, freezer, tmp_path):
+    freezer.move_to("2026-11-14 10:00:00+07:00")
+    d = tmp_path / "history"
+    d.mkdir()
+    (d / "energy_monthly.csv").write_text(
+        "Thang,kWh,Bac,Chua_VAT,Co_VAT,VAT_pct,So_ngay,Bang_gia\n"
+        "09/2026,300.00,5,739500,798660,8,30,0-50:1984\n"
+        "10/2026,250.00,4,600000,648000,8,31,0-50:1984\n"
+        "12/2025,200.00,3,500000,540000,8,31,0-50:1984\n", encoding="utf-8")
+    daily = "Ngay,kWh,Luy_ke_thang_kWh,Tien_ngay_chua_VAT,Luy_ke_chua_VAT,Luy_ke_co_VAT,Bac,VAT_pct,Ghi_chu\n"
+    for day in range(1, 14):
+        if day == 5:
+            continue  # thiếu 1 ngày
+        daily += f"{day:02d}/11/2026,10.00,{day*10}.00,20000,{day*20000},{day*21600},3,8,\n"
+    daily += "30/10/2026,8.00,240.00,15000,580000,626400,4,8,\n"
+    (d / "energy_daily_2026.csv").write_text(daily, encoding="utf-8")
+    _set(hass, SRC, 1)
+    _set(hass, SRC2, 1)
+    entry = await _create(hass)
+    hass.config.allowlist_external_dirs = {str(tmp_path)}
+    await _import(hass, str(d))
+    _set(hass, SRC, 5)  # hôm nay +4 kWh
+    await hass.async_block_till_done()
+
+    # phiên bản hiện trên thiết bị (automation dùng để biết có dịch vụ này)
+    from homeassistant.helpers import device_registry as dr
+    dev = dr.async_get(hass).async_get_device(identifiers={(DOMAIN, entry.entry_id)})
+    assert dev.sw_version == "1.2.0"
+
+    s = await _history(hass)
+    assert s["tieu_de"] == "Nhà" and s["vat_phan_tram"] == 8
+    assert s["hom_nay"]["ngay"] == "2026-11-14" and s["hom_nay"]["kwh"] == pytest.approx(4)
+    assert s["ky"]["ten"] == "11/2026" and s["ky"]["kwh"] == pytest.approx(124)
+    assert s["ky"]["tien"] == round(tier_cost(124, TIERS) * 1.08)
+    assert s["ky"]["tien"] == round(_f(hass, "sensor.nha_period_cost"))
+    assert s["hom_nay"]["tien"] == round(_f(hass, "sensor.nha_cost_today"))
+    assert s["hom_qua"]["ngay"] == "2026-11-13" and s["hom_qua"]["kwh"] == 10
+    assert "ngay" not in s and "ky_chon" not in s  # summary không kèm từng ngày
+
+    # từng ngày của kỳ hiện tại: 12 ngày cũ + hôm nay, thiếu ngày 05
+    s = await _history(hass, kind="days")
+    rows = s["ngay"]
+    assert [r["ngay"][-2:] for r in rows][:5] == ["01", "02", "03", "04", "06"]
+    assert len(rows) == 13 and s["so_ngay_thieu"] == 1 and s["so_ngay_ky"] == 30
+    assert rows[-1]["hom_nay"] and rows[-1]["kwh"] == pytest.approx(4)
+    assert rows[-1]["luy_ke_kwh"] == pytest.approx(124)
+    assert rows[-1]["luy_ke_tien"] == s["ky"]["tien"]
+    assert sum(r["tien_chua_vat"] for r in rows) == pytest.approx(round(tier_cost(124, TIERS)), abs=13)
+    assert s["ky_chon"]["dang_chay"] and s["ky_chon"]["ten"] == "11/2026"
+    assert rows[0]["tien"] == round(rows[0]["tien_chua_vat"] * 1.08)
+
+    # kỳ đã chốt (10/2026, nhập từ CSV): giữ số tiền đã chốt, chỉ có ngày có dữ liệu
+    s = await _history(hass, kind="days", year=2026, month=10)
+    assert s["ky_chon"] == {"ten": "10/2026", "bat_dau": "2026-10-01", "ket_thuc": "2026-11-01",
+                            "kwh": 250.0, "bac": 4, "tien_chua_vat": 600000, "tien": 648000,
+                            "dang_chay": False}
+    assert [r["ngay"] for r in s["ngay"]] == ["2026-10-30"] and s["so_ngay_thieu"] == 30
+    # kỳ tương lai: không có ngày nào
+    s = await _history(hass, kind="days", year=2027, month=1)
+    assert s["ngay"] == [] and s["so_ngay_thieu"] == 0
+
+    # từng kỳ của năm
+    s = await _history(hass, kind="periods")
+    assert [p["ky"] for p in s["ky"]] == ["09/2026", "10/2026", "11/2026"]
+    assert s["ky"][0]["tien"] == 798660 and s["ky"][0]["nhap_tu_csv"]
+    assert s["ky"][-1]["dang_chay"] and s["ky"][-1]["so_ngay"] == 14
+    assert s["nam"]["so_ky"] == 3 and s["nam"]["kwh"] == pytest.approx(674)
+    assert s["nam"]["tien"] == 798660 + 648000 + s["ky"][-1]["tien"]
+    assert s["nam_truoc"]["nam"] == 2025 and s["nam_truoc"]["tien"] == 540000
+    s = await _history(hass, kind="periods", year=2025)
+    assert [p["ky"] for p in s["ky"]] == ["12/2025"] and s["nam_truoc"]["so_ky"] == 0
+
+    # sang ngày mới: hôm qua có trong danh sách, hôm nay đếm từ 0
+    await _midnight(hass, freezer, "2026-11-15 00:00:02+07:00")
+    s = await _history(hass, kind="days")
+    assert s["ngay"][-2]["ngay"] == "2026-11-14" and not s["ngay"][-2]["hom_nay"]
+    assert s["ngay"][-1]["ngay"] == "2026-11-15" and s["ngay"][-1]["kwh"] == 0
+
+    # tham số sai
+    with pytest.raises(Exception):
+        await _history(hass, kind="tuan")
+    with pytest.raises(Exception):
+        await _history(hass, kind="days", month=13)
+
+
+async def test_get_history_billing_day(hass, tz, freezer):
+    """Ngày chốt 2: kỳ 'tháng 11' là 02/11 - 01/12."""
+    freezer.move_to("2026-11-03 09:00:00+07:00")
+    _set(hass, SRC, 1)
+    _set(hass, SRC2, 1)
+    await _create(hass, billing_day=2)
+    _set(hass, SRC, 3)
+    await hass.async_block_till_done()
+    s = await _history(hass, kind="days")
+    assert s["ky_chon"]["bat_dau"] == "2026-11-02" and s["ky_chon"]["ket_thuc"] == "2026-12-02"
+    assert [r["ngay"] for r in s["ngay"]] == ["2026-11-03"] and s["so_ngay_thieu"] == 1
+    s2 = await _history(hass, kind="days", year=2026, month=11)
+    assert s2["ky_chon"] == s["ky_chon"]

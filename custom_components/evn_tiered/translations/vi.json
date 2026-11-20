@@ -195,6 +195,13 @@
         "period": "Kỳ",
         "year": "Năm"
       }
+    },
+    "history_kind": {
+      "options": {
+        "summary": "Tóm tắt",
+        "days": "Từng ngày của kỳ",
+        "periods": "Từng kỳ của năm"
+      }
     }
   },
   "services": {
@@ -247,6 +254,24 @@
         "kind": {
           "name": "Loại",
           "description": "daily, period hoặc year."
+        }
+      }
+    },
+    "get_history": {
+      "name": "Lấy số liệu",
+      "description": "Trả về số hôm nay, kỳ này và tùy chọn từng ngày của một kỳ hoặc từng kỳ của một năm (dùng trong automation / script).",
+      "fields": {
+        "kind": {
+          "name": "Loại",
+          "description": "summary (tóm tắt), days (từng ngày của kỳ) hoặc periods (từng kỳ của năm)."
+        },
+        "year": {
+          "name": "Năm",
+          "description": "Để trống = năm nay (days: cùng với tháng để chọn kỳ bắt đầu trong tháng đó)."
+        },
+        "month": {
+          "name": "Tháng",
+          "description": "Cho days: kỳ bắt đầu trong tháng này. Để trống (cả năm) = kỳ hiện tại."
         }
       }
     }

@@ -64,3 +64,29 @@ send_report:
         select:
           translation_key: report_kind
           options: [daily, period, year]
+get_history:
+  target:
+    entity:
+      integration: evn_tiered
+      domain: sensor
+  fields:
+    kind:
+      default: summary
+      selector:
+        select:
+          translation_key: history_kind
+          options: [summary, days, periods]
+    year:
+      example: 2026
+      selector:
+        number:
+          min: 2000
+          max: 2100
+          mode: box
+    month:
+      example: 11
+      selector:
+        number:
+          min: 1
+          max: 12
+          mode: box

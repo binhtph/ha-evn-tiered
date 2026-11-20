@@ -195,6 +195,13 @@
         "period": "Period",
         "year": "Year"
       }
+    },
+    "history_kind": {
+      "options": {
+        "summary": "Summary",
+        "days": "Each day of a period",
+        "periods": "Each period of a year"
+      }
     }
   },
   "services": {
@@ -247,6 +254,24 @@
         "kind": {
           "name": "Kind",
           "description": "daily, period or year."
+        }
+      }
+    },
+    "get_history": {
+      "name": "Get history",
+      "description": "Return today, the current period and optionally each day of a period or each period of a year (for automations / scripts).",
+      "fields": {
+        "kind": {
+          "name": "Kind",
+          "description": "summary, days (each day of a period) or periods (each period of a year)."
+        },
+        "year": {
+          "name": "Year",
+          "description": "Empty = current year (days: together with month picks the period starting in that month)."
+        },
+        "month": {
+          "name": "Month",
+          "description": "For days: the period starting in this month. Empty (with year empty) = current period."
         }
       }
     }

@@ -542,6 +542,134 @@ class EvnTracker:
                         p.get("prices", "")])
         return "﻿" + out.getvalue()
 
+    # ------------------------------------------------------------ dữ liệu cho automation
+    def _money_vat(self, cost: float, vat: float | None = None) -> int:
+        return round_half_up(cost * (1 + (self.vat_percent if vat is None else vat) / 100))
+
+    def summary(self) -> dict[str, Any]:
+        """Số liệu hôm nay, hôm qua, kỳ này, dự tính (giống các sensor)."""
+        y = self.yesterday()
+        p = self.projection()
+        return {
+            "tieu_de": self.entry.title,
+            "vat_phan_tram": self.vat_percent,
+            "bang_gia": price_table(self.tiers),
+            "hom_nay": {
+                "ngay": self.day.isoformat(),
+                "kwh": round(self.day_kwh, 3),
+                "tien_chua_vat": round_half_up(self.today_cost_before_vat),
+                "tien": round_half_up(self.today_cost),
+            },
+            "hom_qua": None if y is None else {
+                "ngay": y[0],
+                "kwh": y[1]["kwh"],
+                "tien_chua_vat": y[1]["cost"],
+                "tien": self._money_vat(y[1]["cost"], y[1].get("vat")),
+                "bac": y[1]["tier"],
+            },
+            "ky": {
+                "ten": period_name(self.period_start),
+                "bat_dau": self.period_start.isoformat(),
+                "ket_thuc": self.period_end.isoformat(),
+                "kwh": round(self.period_kwh, 3),
+                "bac": self.current_tier,
+                "don_gia": round_half_up(self.current_price),
+                "tien_chua_vat": round_half_up(self.period_cost_before_vat),
+                "tien": round_half_up(self.period_cost),
+            },
+            "du_tinh": None if p is None else {
+                "kwh": round(p["kwh"], 1),
+                "tien": round_half_up(p["cost"]),
+            },
+        }
+
+    def history_days(self, year: int | None = None, month: int | None = None) -> dict[str, Any]:
+        """Từng ngày của một kỳ: kỳ bắt đầu trong tháng `month`/`year` (mặc định kỳ hiện tại)."""
+        if year is None and month is None:
+            start = self.period_start
+        else:
+            year = year or self.day.year
+            month = month or self.day.month
+            start = date(year, month, self.billing_day)
+        end = next_period_start(start)
+        rows: list[dict[str, Any]] = []
+        d = start
+        last = min(end - timedelta(days=1), self.day)
+        while d <= last:
+            iso = d.isoformat()
+            if d == self.day and start == self.period_start:
+                r = self._day_record(self.day_kwh, self.period_kwh, "Đang đếm (hôm nay)")
+            else:
+                r = self.days.get(iso)
+            if r is not None:
+                rows.append({
+                    "ngay": iso,
+                    "kwh": r["kwh"],
+                    "tien_chua_vat": r["cost"],
+                    "tien": self._money_vat(r["cost"], r.get("vat")),
+                    "luy_ke_kwh": r["cum"],
+                    "luy_ke_tien": r["cum_cost_vat"],
+                    "bac": r["tier"],
+                    "ghi_chu": r.get("note", ""),
+                    "hom_nay": d == self.day,
+                })
+            d += timedelta(days=1)
+        if start == self.period_start:
+            s = self.summary()["ky"]
+            ky = {k: s[k] for k in ("ten", "bat_dau", "ket_thuc", "kwh", "bac", "tien_chua_vat", "tien")}
+            ky["dang_chay"] = True
+        elif (p := next((x for x in self.periods if x["start"] == start.isoformat()), None)) is not None:
+            ky = {"ten": p.get("name", period_name(start)), "bat_dau": p["start"], "ket_thuc": p["end"],
+                  "kwh": p["kwh"], "bac": p.get("tier"), "tien_chua_vat": p.get("cost"),
+                  "tien": p.get("cost_vat"), "dang_chay": False}
+        else:
+            kwh = round(sum(r["kwh"] for r in rows), 3)
+            ky = {"ten": period_name(start), "bat_dau": start.isoformat(), "ket_thuc": end.isoformat(),
+                  "kwh": kwh, "bac": current_tier(kwh, self.tiers)[0] if kwh > 0 else 1,
+                  "tien_chua_vat": rows[-1]["luy_ke_tien"] if rows else 0, "tien": None,
+                  "dang_chay": False}
+        so_ngay = (end - start).days
+        thieu = (last - start).days + 1 - len(rows) if last >= start else 0
+        return {"ky_chon": ky, "so_ngay_ky": so_ngay, "so_ngay_thieu": max(thieu, 0), "ngay": rows}
+
+    def history_periods(self, year: int | None = None) -> dict[str, Any]:
+        """Từng kỳ bắt đầu trong năm `year` (mặc định năm nay), gồm kỳ đang chạy."""
+        year = year or self.day.year
+        rows: list[dict[str, Any]] = []
+        for p in self.periods:
+            if p["start"][:4] != str(year):
+                continue
+            rows.append({
+                "ky": p.get("name", period_name(date.fromisoformat(p["start"]))),
+                "bat_dau": p["start"], "ket_thuc": p["end"], "kwh": p["kwh"],
+                "bac": p.get("tier"), "tien_chua_vat": p.get("cost"), "tien": p.get("cost_vat"),
+                "so_ngay": p.get("days"), "dang_chay": False, "nhap_tu_csv": bool(p.get("imported")),
+            })
+        if self.period_start.year == year:
+            s = self.summary()["ky"]
+            rows.append({
+                "ky": s["ten"], "bat_dau": s["bat_dau"], "ket_thuc": s["ket_thuc"], "kwh": s["kwh"],
+                "bac": s["bac"], "tien_chua_vat": s["tien_chua_vat"], "tien": s["tien"],
+                "so_ngay": (self.day - self.period_start).days + 1, "dang_chay": True, "nhap_tu_csv": False,
+            })
+        rows.sort(key=lambda r: r["bat_dau"])
+
+        def _year(y: int) -> dict[str, Any]:
+            s = self.year_summary(y)
+            return {"nam": y, "so_ky": s["count"], "kwh": round(s["kwh"], 3),
+                    "tien_chua_vat": s["cost"], "tien": s["cost_vat"]}
+
+        return {"nam": _year(year), "nam_truoc": _year(year - 1), "ky": rows}
+
+    def history(self, kind: str = "summary", year: int | None = None, month: int | None = None) -> dict[str, Any]:
+        """Dữ liệu trả về cho dịch vụ get_history."""
+        data = self.summary()
+        if kind == "days":
+            data.update(self.history_days(year, month))
+        elif kind == "periods":
+            data.update(self.history_periods(year))
+        return data
+
     def years(self) -> list[int]:
         ys = {int(k[:4]) for k in self.days} | {self.day.year}
         return sorted(ys)

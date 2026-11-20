@@ -121,6 +121,29 @@ Biểu đồ theo ngày, tháng, năm: dùng card `statistics-graph`, chọn `st
 | `evn_tiered.import_legacy_csv` | Nhập CSV Energy Monitor cũ (mặc định đọc từ `/config/energy_monitor/history`). Thư mục phải nằm trong `allowlist_external_dirs` hoặc thư mục media, xem mục bên dưới |
 | `evn_tiered.export_csv` | Tạo link tải CSV; tham số `telegram: true` để gửi file qua Telegram |
 | `evn_tiered.send_report` | Gửi ngay một loại báo cáo: `daily`, `period` hoặc `year` |
+| `evn_tiered.get_history` | (từ 1.2.0) Trả số liệu cho automation / script: tóm tắt, từng ngày của một kỳ hoặc từng kỳ của một năm |
+
+### Lấy số liệu trong automation (`get_history`)
+
+```yaml
+- action: evn_tiered.get_history
+  target:
+    entity_id: sensor.dien_nha_period_cost   # sensor bất kỳ của integration
+  data:
+    kind: days        # summary (mặc định) | days | periods
+    # year: 2026      # days: cùng month để chọn kỳ bắt đầu trong tháng đó; periods: năm cần xem
+    # month: 10
+  response_variable: evn
+- variables:
+    so: "{{ evn['sensor.dien_nha_period_cost'] }}"
+```
+
+Mọi lần gọi đều có `hom_nay`, `hom_qua`, `ky` (kỳ này), `du_tinh`, `vat_phan_tram`, `bang_gia`. Tiền `tien` đã có VAT, `tien_chua_vat` thì chưa.
+
+- `kind: days` thêm `ngay`: danh sách `{ngay, kwh, tien, tien_chua_vat, luy_ke_kwh, luy_ke_tien, bac, ghi_chu, hom_nay}`, cùng `ky_chon` (tổng của kỳ được chọn), `so_ngay_ky`, `so_ngay_thieu` (ngày không có dữ liệu). Kỳ đã chốt giữ đúng số tiền lúc chốt.
+- `kind: periods` thêm `ky`: danh sách `{ky, bat_dau, ket_thuc, kwh, bac, tien, tien_chua_vat, so_ngay, dang_chay, nhap_tu_csv}`, cùng `nam` và `nam_truoc` (tổng năm).
+
+Thiết bị của integration ghi phiên bản (`sw_version`), automation có thể kiểm tra `device_attr(device_id('sensor.dien_nha_period_cost'), 'sw_version')` trước khi gọi.
 
 ## Chuyển từ Energy Monitor cũ (`packages/energy.yaml`)
 
